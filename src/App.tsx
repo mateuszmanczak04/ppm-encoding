@@ -50,7 +50,7 @@ function App() {
 			</header>
 			<div className='grid grid-cols-2 gap-x-4'>
 				<Sender maxContext={maxContext} alphabet={alphabet} pushToQueue={add} />
-				<Receiver maxContext={maxContext} alphabet={alphabet} popFromQueue={remove} />
+				{/* <Receiver maxContext={maxContext} alphabet={alphabet} popFromQueue={remove} /> */}
 			</div>
 		</div>
 	);
