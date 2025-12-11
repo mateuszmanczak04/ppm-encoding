@@ -14,10 +14,9 @@ function App() {
 	const { add, remove, queue, size: queueSize } = useQueue<string>([]);
 
 	return (
-		<div>
-			<header className='pl-4'>
-				<h3 className='mb-2 text-xl font-semibold'>Constatnts known to both sides</h3>
-
+		<div className='space-y-8 p-4'>
+			<header>
+				<h2 className='text-xl font-semibold'>Constatnts known to both sides</h2>
 				<p>Alphabet:</p>
 				<ul className='mb-4 flex w-fit items-stretch border border-neutral-300 border-r-transparent'>
 					{alphabet.map((symbol) => (
@@ -35,8 +34,7 @@ function App() {
 					{queue.map((el, i) => (
 						<div
 							className='flex flex-col items-center border border-neutral-300 px-2 text-nowrap'
-							key={i}
-						>
+							key={i}>
 							{el}
 							{i === queueSize - 1 && (
 								<span className='text-xs text-neutral-500'>(recently sent)</span>
@@ -48,10 +46,45 @@ function App() {
 					))}
 				</div>
 			</header>
-			<div className='grid grid-cols-2 gap-x-4'>
+
+			<main className='grid grid-cols-2 gap-x-4'>
 				<Sender maxContext={maxContext} alphabet={alphabet} pushToQueue={add} />
 				{/* <Receiver maxContext={maxContext} alphabet={alphabet} popFromQueue={remove} /> */}
-			</div>
+			</main>
+
+			<section>
+				<h2 className='text-xl font-semibold'>Documentation</h2>
+				<ul className='list-inside list-disc'>
+					<li>
+						Alphabet means all letters that can be possibly encoded. They are also
+						present in the Context -1.
+					</li>
+					<li>
+						Highest context means the highest order of context (letters back) that the
+						algorithm is looking for.
+					</li>
+					<li>
+						Message queue is a queue with all symbols/arithmetic ranges sender sends to
+						the receiver that should be later decoded.
+					</li>
+					<li>
+						Next to "Message to encode" we can distinguish the current letter that is
+						encoded. Only that letter is not grayed out.
+					</li>
+					<li>
+						Context table colored with blue background means the context we are looking
+						for right now. It starts from the highest and goes to the lowest one.
+					</li>
+					<li>
+						Like in PPM, if current symbol IS NOT present in the context we are looking
+						at, we send {'"<ESC>"'} and go context down.
+					</li>
+					<li>
+						If current symbol IS present in the context, we send that letter with it's
+						arithmetical range and go to the next symbol.
+					</li>
+				</ul>
+			</section>
 		</div>
 	);
 }

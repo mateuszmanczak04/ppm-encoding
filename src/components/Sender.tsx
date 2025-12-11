@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { ESC } from '../consts';
 import type { Alphabet, Context } from '../types';
+import { cn } from '../utils/cn';
 
 type Props = {
 	maxContext: number;
@@ -23,6 +24,9 @@ const Sender = ({ alphabet, pushToQueue }: Props) => {
 		};
 		return [contextZero, contextMinusOne];
 	});
+	const [currentContextToRender, setCurrentContextToRender] = useState<Context>(
+		contextsToRender[0],
+	);
 
 	const [message] = useState<string>('moto-toto-tototo');
 	const [currentSymbolIndex, setCurrentSymbolIndex] = useState<number>(0);
@@ -90,6 +94,7 @@ const Sender = ({ alphabet, pushToQueue }: Props) => {
 			);
 			if (newCurrentContext) {
 				currentContext.current = newCurrentContext;
+				setCurrentContextToRender(newCurrentContext);
 			}
 		}
 	};
@@ -168,23 +173,34 @@ const Sender = ({ alphabet, pushToQueue }: Props) => {
 		let context = getContext(order, newContextAppearsAfter);
 		if (context) {
 			currentContext.current = context;
+			setCurrentContextToRender(context);
 		} else {
 			order = 1;
 			newContextAppearsAfter = message.slice(currentSymbolIndex, currentSymbolIndex + 1);
 			context = getContext(order, newContextAppearsAfter);
 			if (context) {
 				currentContext.current = context;
+				setCurrentContextToRender(context);
 			} else {
-				currentContext.current = getContextZero();
+				const newContext = getContextZero();
+				currentContext.current = newContext;
+				setCurrentContextToRender(newContext);
 			}
 		}
 	};
 
+	const isCurrentContextToRender = (context: Context) => {
+		return (
+			context.order === currentContextToRender.order &&
+			context.appearsAfter === currentContextToRender.appearsAfter
+		);
+	};
+
 	return (
-		<div className='p-4'>
+		<section>
 			<h3 className='mb-2 text-xl font-bold'>Sender</h3>
 			<button
-				className='mb-4 cursor-pointer rounded-md border border-neutral-300 bg-blue-500 px-3 py-1 text-white select-none disabled:cursor-not-allowed disabled:opacity-50'
+				className='mb-2 cursor-pointer rounded-md border border-neutral-300 bg-blue-500 px-3 py-1 text-white select-none disabled:cursor-not-allowed disabled:opacity-50'
 				onClick={next}
 				disabled={currentSymbolIndex === message.length}
 			>
@@ -201,14 +217,17 @@ const Sender = ({ alphabet, pushToQueue }: Props) => {
 				</strong>
 			</p>
 
-			<section className='mb-8'>
+			<div className='space-y-4'>
 				{contextsToRender.map((ctx) => (
-					<div className='mb-4' key={`${ctx.order}:${ctx.appearsAfter}`}>
+					<div
+						className={cn(isCurrentContextToRender(ctx) && 'bg-blue-100')}
+						key={`${ctx.order}:${ctx.appearsAfter}`}
+					>
 						<p>
 							<strong>Context {ctx.order} </strong>
 							{ctx.appearsAfter && <span>after &quot;{ctx.appearsAfter}&quot;</span>}
 						</p>
-						<table className='w-full table-fixed border-collapse border border-neutral-300 bg-white text-center'>
+						<table className='w-full table-fixed border-collapse border border-neutral-300 text-center'>
 							<thead className='border-b border-neutral-300'>
 								<tr>
 									{ctx.symbols.map((symbol) => (
@@ -239,8 +258,8 @@ const Sender = ({ alphabet, pushToQueue }: Props) => {
 						</table>
 					</div>
 				))}
-			</section>
-		</div>
+			</div>
+		</section>
 	);
 };
 export default Sender;
