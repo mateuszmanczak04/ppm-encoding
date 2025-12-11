@@ -11,7 +11,7 @@ function App() {
 	// Queue of messages passed between between sender and receiver
 	// Sender should push to the queue
 	// Receiver should pop from the queue
-	const { add, remove, queue, size: queueSize } = useQueue<string>([]);
+	const { add, remove, queue, size: queueSize, first } = useQueue<string>([]);
 
 	return (
 		<div className='space-y-8 p-4'>
@@ -34,7 +34,8 @@ function App() {
 					{queue.map((el, i) => (
 						<div
 							className='flex flex-col items-center border border-neutral-300 px-2 text-nowrap'
-							key={i}>
+							key={i}
+						>
 							{el}
 							{i === queueSize - 1 && (
 								<span className='text-xs text-neutral-500'>(recently sent)</span>
@@ -49,7 +50,16 @@ function App() {
 
 			<main className='grid grid-cols-2 gap-x-4'>
 				<Sender maxContext={maxContext} alphabet={alphabet} pushToQueue={add} />
-				{/* <Receiver maxContext={maxContext} alphabet={alphabet} popFromQueue={remove} /> */}
+				<Receiver
+					isSomethingYet={queueSize > 0}
+					maxContext={maxContext}
+					alphabet={alphabet}
+					popFromQueue={() => {
+						const result = first;
+						remove();
+						return result;
+					}}
+				/>
 			</main>
 
 			<section>
